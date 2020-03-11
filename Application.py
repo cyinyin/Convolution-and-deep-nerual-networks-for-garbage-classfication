@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow,QApplication,QHBoxLayout,QVBoxLayout,QLabel,QWidget
-from PyQt5.QtWidgets import QPushButton,QMessageBox,QLineEdit,QFileDialog,QRadioButton,QLCDNumber,QSlider
+from PyQt5.QtWidgets import QPushButton,QMessageBox,QLineEdit,QFileDialog,QRadioButton
 from PyQt5.QtGui import QIcon,QPixmap,QPalette,QBrush,QFont
 from graduation_project.predict import pre_photo
 from graduation_project.recognition import rec_photo
@@ -83,7 +83,8 @@ class SecondPage_1(QMainWindow):
         self.initUI()
         #图片的位置
         self.number = 0
-        self.text_button_layout_1()
+        # self.text_button_layout_1()
+        self.width_height_layout_1()
         self.Path = []
 
     #SecondPage start
@@ -152,7 +153,11 @@ class SecondPage_1(QMainWindow):
         font.setBold(True)
         self.go.setFont(font)
         self.go.setFixedSize(150,50)
-        if num == 1:
+        if num == -1:
+            self.go.clicked.connect(self.width_height_layout_2)
+        elif num == 0:
+            self.go.clicked.connect(self.text_button_layout_1)
+        elif num == 1:
             self.go.clicked.connect(self.text_button_layout_2)
         else:
             self.go.clicked.connect(self.text_button_layout_3)
@@ -168,19 +173,19 @@ class SecondPage_1(QMainWindow):
         fname = QFileDialog.getExistingDirectory(None,'choose folder',r'C:\Users\DELL\.keras\models')
         self.text_edit.setText(fname)
         if self.text_edit.text() == '':
-            self.Path.append(None)
+            self.Path.append('')
         else:
             self.Path.append(fname)
-        # print(self.Path)
+        print(self.Path)
 
     def showFile(self):
         fname = QFileDialog.getOpenFileName(None,'choose file',r'C:\Users\DELL\.keras\models','All files(*.h5)')
         self.text_edit.setText(fname[0])
         if self.text_edit.text() == '':
-            self.Path.append(None)
+            self.Path.append('')
         else:
             self.Path.append(fname[0])
-        # print(self.Path)
+        print(self.Path)
 
     def text(self,title = None):
         self.text_edit = QLineEdit(self)
@@ -188,6 +193,59 @@ class SecondPage_1(QMainWindow):
         self.text_edit.setPlaceholderText(title)
         self.set_font(self.text_edit)
         return self.text_edit
+
+    def width_height(self,content):
+        self.line_text = QLineEdit()
+        self.line_text.setPlaceholderText(content)
+        self.line_text.setFixedSize(150, 30)
+        self.line_text.editingFinished.connect(self.get_text)
+        return self.line_text
+
+    def get_text(self):
+        if self.line_text.text() != '':
+            self.Path.append(self.line_text.text())
+        else:
+            self.Path.append('')
+        print(self.Path)
+
+    def label(self, content):
+        label = QLabel(content)
+        font = QFont('Microsoft YaHei UI', 20)
+        font.setBold(True)
+        font.setItalic(True)
+        label.setFont(font)
+        return label
+
+    def width_height_layout(self, label=None, width_height_text=None, back_button=None, go_on_button=None):
+        widget = QWidget()
+        self.setCentralWidget(widget)
+        hbox1 = QHBoxLayout()
+        hbox1.addStretch(1)
+        hbox1.addWidget(label)
+        hbox1.addWidget(width_height_text)
+        hbox1.addStretch(1)
+
+        hbox2 = QHBoxLayout()
+        hbox2.addStretch(1)
+        hbox2.addWidget(back_button)
+        hbox2.addWidget(go_on_button)
+
+        vbox = QVBoxLayout()
+        vbox.addStretch(1)
+        vbox.addLayout(hbox1)
+        vbox.addStretch(1)
+        vbox.addLayout(hbox2)
+        widget.setLayout(vbox)
+
+    def width_height_layout_1(self):
+        self.width_height_layout(self.label('width:'), self.width_height('input the image width'),
+                                 self.back_button(), self.go_on_button(-1))
+
+    def width_height_layout_2(self):
+        QApplication.processEvents()
+        self.width_height_layout(self.label('height:'), self.width_height('input the image height'),
+                                 self.back_button(), self.go_on_button(0))
+
 
     def text_button_layout(self,text_box,buttonDialog,back_button,go_on_button,):
         widget = QWidget()
@@ -240,7 +298,7 @@ class SecondPage_1(QMainWindow):
         return predict
 
     def predict_result(self):
-        self.result = pre_photo(150,150,self.Path[0],self.Path[1],self.Path[2])
+        self.result = pre_photo(self.Path[0],self.Path[1],self.Path[2],self.Path[3],self.Path[4])
         QApplication.processEvents()
         self.Firth_layout(self.FirthPage_button()[0],self.FirthPage_button()[1],self.name_kind_probability()[0],
                           self.name_kind_probability()[1],self.name_kind_probability()[2],self.Firth_show_imagewindow())
@@ -351,7 +409,8 @@ class SecondPage_2(QMainWindow):
         super().__init__()
         self.setFixedSize(width, height)
         self.initUI()
-        self.first_layout()
+        # self.first_layout()
+        self.width_height_layout_1()
         self.Path_parameter = []
 
     def initUI(self):
@@ -384,7 +443,11 @@ class SecondPage_2(QMainWindow):
         font.setBold(True)
         go.setFont(font)
         go.setFixedSize(150,50)
-        if num == 1:
+        if num == -1:
+            go.clicked.connect(self.width_height_layout_2)
+        elif num == 0:
+            go.clicked.connect(self.first_layout)
+        elif num == 1:
             go.clicked.connect(self.second_layout)
         elif num == 2:
             go.clicked.connect(self.third_layout)
@@ -447,7 +510,59 @@ class SecondPage_2(QMainWindow):
         self.button_dialog.setFont(font)
         return self.button_dialog
 
-    #first page layout
+
+    def width_height(self,content):
+        self.line_text = QLineEdit()
+        self.line_text.setPlaceholderText(content)
+        self.line_text.setFixedSize(150,30)
+        self.line_text.editingFinished.connect(self.get_text)
+        return self.line_text
+
+    def get_text(self):
+        if self.line_text.text() != '':
+            self.Path_parameter.append(self.line_text.text())
+        else:
+            self.Path_parameter.append('')
+        print(self.Path_parameter)
+
+    def label(self,content):
+        label = QLabel(content)
+        font = QFont('Microsoft YaHei UI', 20)
+        font.setBold(True)
+        font.setItalic(True)
+        label.setFont(font)
+        return label
+
+    def width_height_layout(self,label =None,width_height_text = None,back_button = None,go_on_button =None):
+        widget = QWidget()
+        self.setCentralWidget(widget)
+        hbox1 = QHBoxLayout()
+        hbox1.addStretch(1)
+        hbox1.addWidget(label)
+        hbox1.addWidget(width_height_text)
+        hbox1.addStretch(1)
+
+        hbox2 =QHBoxLayout()
+        hbox2.addStretch(1)
+        hbox2.addWidget(back_button)
+        hbox2.addWidget(go_on_button)
+
+        vbox = QVBoxLayout()
+        vbox.addStretch(1)
+        vbox.addLayout(hbox1)
+        vbox.addStretch(1)
+        vbox.addLayout(hbox2)
+        widget.setLayout(vbox)
+
+    def width_height_layout_1(self):
+        self.width_height_layout(self.label('width:'),self.width_height('recommend width:150~224'),
+                                 self.back_button(),self.go_on_button(-1))
+
+    def width_height_layout_2(self):
+        QApplication.processEvents()
+        self.width_height_layout(self.label('height:'),self.width_height('recommend height:150~224'),
+                                 self.back_button(),self.go_on_button(0))
+
     def text_button_Layout(self,text_lineEdit = None,buttonDialog = None,back_button = None,go_on_button = None):
         widget = QWidget()
         self.setCentralWidget(widget)
@@ -470,6 +585,7 @@ class SecondPage_2(QMainWindow):
         widget.setLayout(vbox)
 
     def first_layout(self):
+        QApplication.processEvents()
         self.text_button_Layout(self.text_lineEdit('select unprocessed training images folder'),
                                 self.buttonDialog('choose folder'),self.back_button(),self.go_on_button(1))
 
@@ -494,10 +610,6 @@ class SecondPage_2(QMainWindow):
         font.setBold(True)
         font.setItalic(True)
         r_button.setFont(font)
-        # if bool == True:
-        #     r_button.setChecked(True)
-        # else:
-        #     r_button.setChecked(False)
         r_button.clicked.connect(lambda : self.btnstate(r_button))
         return r_button
 
@@ -665,18 +777,14 @@ class SecondPage_2(QMainWindow):
         parameters = []
         for item in self.Path_parameter:
             parameters.append(item.replace('/','\\'))
-        rec_photo(150,150,open_path_1=parameters[0],save_path_1=parameters[1],open_path_2=parameters[2],
-                  save_path_2=parameters[3],optimizer=parameters[4],batch_size=parameters[5],
-                  epoche=parameters[6],save_tensorboard=parameters[7],save_model=parameters[8],
-                  save_model_weight=parameters[9],save_model_structure=parameters[10])
-        # self.go_window()
-
+        rec_photo(parameters[0],parameters[1],parameters[2],parameters[3],parameters[4],parameters[5],parameters[6],
+                  parameters[7],parameters[8],parameters[9],parameters[10],parameters[11],parameters[12])
+        self.go_window()
 
     def ninth_layout(self):
         QApplication.processEvents()
         self.text_button_Layout(self.text_lineEdit('select the folder to save model-structure file'),
                                 self.buttonDialog('choose folder'),self.back_button(),self.train_button())
-
 
 if __name__ =="__main__":
     app = QApplication(sys.argv)

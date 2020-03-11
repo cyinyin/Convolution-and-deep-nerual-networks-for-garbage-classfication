@@ -2,7 +2,7 @@ from graduation_project.photo_resize import Photo_Deal_Method
 from graduation_project.simple_vggnet import VGGnet
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import TensorBoard
-from keras.optimizers import Adam,SGD
+from keras.optimizers import SGD
 import os
 from matplotlib import pyplot as plt
 
@@ -10,13 +10,9 @@ from matplotlib import pyplot as plt
 #the path of training images(default select)
 open_path ='E:\python_workspace\graduation_project'
 save_path = 'E:\python_workspace\graduation_project\image_data'
-# width = 150
-# height = 150
 
 #width,height:the size of photo
-def rec_photo(width = 150,height = 150,
-              open_path_1 = '',save_path_1 = '',
-              open_path_2 = '',save_path_2 = '',
+def rec_photo(width = '',height = '',open_path_1 = '',save_path_1 = '',open_path_2 = '',save_path_2 = '',
               optimizer = '',batch_size = '',epoche = '',save_tensorboard = '',
               save_model = '',save_model_weight = '',save_model_structure = ''):
     #open_path_1:train image path  open_path_2:validation image path
@@ -37,6 +33,15 @@ def rec_photo(width = 150,height = 150,
         save_path_1 = Photo_Processing.Path_Judge(save_path + r'\train')
     else:
         save_path_1 = Photo_Processing.Path_Judge(save_path_1 + r'\train')
+    if width == '':
+        width = 150
+    else:
+        width = int(width)
+    if height == '':
+        height = 150
+    else:
+        height = int(height)
+
     Photo_Processing.Train_Photo((width,height),save_path_1,open_path_1)
 
     #processing validation image
@@ -48,9 +53,9 @@ def rec_photo(width = 150,height = 150,
         save_path_2 = Photo_Processing.Path_Judge(save_path + r'\validation')
     else:
         save_path_2 = save_path_2 + r'\validation'
+
     Photo_Processing.Train_Photo((width,height),save_path_2,open_path_2)
 
-    # Input_Size = (width,height,3)
     if open_path_1 == '':
         model = VGGnet((width,height,3),len(os.listdir(open_path_1))).VGG()
     else:
@@ -58,7 +63,7 @@ def rec_photo(width = 150,height = 150,
 
 
     if optimizer == '':
-        optimizer = 'sgd'
+        optimizer = SGD(momentum = 0.2)
     else:
         optimizer = str(optimizer)
 
@@ -74,10 +79,6 @@ def rec_photo(width = 150,height = 150,
     #model compile
     model.compile(optimizer= optimizer, loss= loss, metrics=['accuracy'])
 
-    # if optimizer == '':
-    #     model.compile(optimizer = 'sgd',loss = 'categorical_crossentropy',metrics = ['accuracy'])
-    # else:
-    #     model.compile(optimizer = str(optimizer),loss = 'categorical_crossentropy',metrics = ['accuracy'])
 
     #imagedata enhance
     train_datagen = ImageDataGenerator(
@@ -85,9 +86,8 @@ def rec_photo(width = 150,height = 150,
         width_shift_range = 0.2,
         height_shift_range = 0.2,
         rescale = 1./255,
-        # shear_range = 0.2,
-        # vertical_flip = True,
-        # horizontal_flip = True,
+        shear_range = 0.2,
+        vertical_flip = True,
     )
 
     test_datagen = ImageDataGenerator(
@@ -150,12 +150,25 @@ def rec_photo(width = 150,height = 150,
 
     epochs = range(len(m.history['accuracy']))
     plt.figure()
-    plt.plot(epochs,m.history['loss'],'b*-',label = 'Train_loss')
-    plt.plot(epochs,m.history['val_loss'],'r+-',label = 'Val_loss')
-    plt.plot(epochs,m.history['accuracy'],'o-g',label = 'Train_accuracy')
+    plt.plot(epochs,m.history['loss'],'b',label = 'Train_loss')
+    plt.plot(epochs,m.history['val_loss'],'r',label = 'Val_loss')
+    plt.title('Train and Validation loss')
+    plt.legend()
+    if save_model == '':
+        plt.savefig(Photo_Processing.Path_Judge('E:\python_workspace\graduation_project\models') + r'\train_validation_loss.png')
+    else:
+        plt.savefig(save_model + r'\train_validation_loss.png')
+    plt.show()
+
+    plt.figure()
+    plt.plot(epochs,m.history['accuracy'],'g',label = 'Train_accuracy')
     plt.plot(epochs,m.history['val_accuracy'],'purple',label = 'Val_accuracy')
     plt.title('Train and Validation accuracy')
     plt.legend()
+    if save_model == '':
+        plt.savefig(Photo_Processing.Path_Judge('E:\python_workspace\graduation_project\models') + r'\train_validation_accuracy.png')
+    else:
+        plt.savefig(save_model + r'\train_validation_accuracy.png')
     plt.show()
 
     #save the model
@@ -183,12 +196,16 @@ def rec_photo(width = 150,height = 150,
 
 
 if __name__ == "__main__":
-    parameters = ['E:/python_workspace/graduation_project/dataset-train', 'E:/python_workspace/graduation_project/image_data', 'E:/python_workspace/graduation_project/dataset-validation', 'E:/python_workspace/graduation_project/image_data', 'sgd', '16', '10', 'E:/python_workspace/graduation_project/models', 'E:/python_workspace/graduation_project/models', 'E:/python_workspace/graduation_project/models', 'E:/python_workspace/graduation_project/models']
+    parameters = ['200','200','E:/python_workspace/graduation_project/dataset-train',
+                  'E:/python_workspace/graduation_project/image_data',
+                  'E:/python_workspace/graduation_project/dataset-validation',
+                  'E:/python_workspace/graduation_project/image_data',
+                  'sgd', '16', '1', 'E:/python_workspace/graduation_project/models',
+                  'E:/python_workspace/graduation_project/models',
+                  'E:/python_workspace/graduation_project/models',
+                  'E:/python_workspace/graduation_project/models']
     path = []
     for item in parameters:
         path.append(item.replace('/','\\'))
-    rec_photo(150,150,
-              open_path_1=path[0],save_path_1=path[1], open_path_2=path[2],save_path_2=path[3],
-              optimizer=path[4], batch_size=path[5], epoche=path[6],
-              save_tensorboard=path[7], save_model=path[8],
-              save_model_weight=path[9], save_model_structure=path[10])
+    rec_photo(path[0],path[1],path[2],path[3],path[4],path[5],path[6],
+              path[7],path[8],path[9],path[10],path[11],path[12])
