@@ -246,7 +246,6 @@ class SecondPage_1(QMainWindow):
         self.width_height_layout(self.label('height:'), self.width_height('input the image height'),
                                  self.back_button(), self.go_on_button(0))
 
-
     def text_button_layout(self,text_box,buttonDialog,back_button,go_on_button,):
         widget = QWidget()
         self.setCentralWidget(widget)
@@ -285,7 +284,6 @@ class SecondPage_1(QMainWindow):
         self.text_button_layout(self.text('select model file(.h5)'),self.buttonDialog('file'),
                                 self.back_button(),self.Third_button_predict())
 
-
     def Third_button_predict(self):
         predict = QPushButton('Predict',self)
         predict.setFixedSize(150,50)
@@ -317,7 +315,7 @@ class SecondPage_1(QMainWindow):
     def left_button(self):
         if self.button_left.text() == '<==' and self.number > 0:
             self.number -= 1
-            pixmap = self.Firth_show_imagewindow(os.path.join(self.Path[1],(self.result[0])[self.number]))
+            pixmap = self.Firth_show_imagewindow(os.path.join(self.Path[3],(self.result[0])[self.number]))
             name,kind,probability = self.name_kind_probability((self.result[0])[self.number],
                                                                (self.result[1])[self.number],(self.result[2])[self.number])
             self.Firth_layout(self.button_left,self.button_right,name,kind,probability,pixmap)
@@ -325,7 +323,7 @@ class SecondPage_1(QMainWindow):
     def right_button(self):
         if self.button_right.text() == '==>' and self.number < len(self.result[0]):
             self.number += 1
-            pixmap = self.Firth_show_imagewindow(os.path.join(self.Path[1],(self.result[0])[self.number]))
+            pixmap = self.Firth_show_imagewindow(os.path.join(self.Path[3],(self.result[0])[self.number]))
             name,kind,probability= self.name_kind_probability((self.result[0])[self.number],
                                                               (self.result[1])[self.number],(self.result[2])[self.number])
             self.Firth_layout(self.button_left,self.button_right,name,kind,probability,pixmap)
@@ -335,7 +333,7 @@ class SecondPage_1(QMainWindow):
         label = QLabel()
         label.setMaximumSize(380,380)
         if path == None:
-            pix = QPixmap(os.path.join(self.Path[1],(self.result[0])[0]))
+            pix = QPixmap(os.path.join(self.Path[3],(self.result[0])[0]))
         else:
             pix = QPixmap(path)
         label.setPixmap(pix)
